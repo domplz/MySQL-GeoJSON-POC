@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['towns'] ?? '')) {
         }
     }
 
-    $result = $geoJsonService->combineGeoJsonAreas($townGeoJsons);
+    $result = $geoJsonService->combineGeoJsonsArray($townGeoJsons);
 
     if (!empty($_GET['towns2'] ?? '')) {
         $isoCodesTowns2 = explode(',', $_GET['towns2']);
@@ -38,7 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['towns'] ?? '')) {
             }
         }
 
-        $resultTowns2 = $geoJsonService->combineGeoJsonAreas($townGeoJsonsTowns2);
+        $resultTowns2 = $geoJsonService->combineGeoJsonsArray($townGeoJsonsTowns2);
+
+        $overlap = $geoJsonService->getOverlappingAreaGeoJson($result, $resultTowns2);
     }
 }
 
@@ -85,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['towns'] ?? '')) {
                    placeholder="Input town ISO codes (comma separated (,))">
         </label>
 
+        <br>
         <input type="submit" value="Submit">
 
     </form>
@@ -109,6 +112,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['towns'] ?? '')) {
         <pre id="townsResults2">
                 <?php
                 echo json_encode($resultTowns2->geometry);
+                ?>
+            </pre>
+
+    <?php } ?>
+
+
+    <?php if ($isCalculation && !empty($overlap)) { ?>
+        <h2>Overlapping Area</h2>
+        <button onclick="copyPreTagContent('#overlap')">Copy to Clipboard</button>
+        <pre id="overlap">
+                <?php
+                echo json_encode($overlap->geometry);
                 ?>
             </pre>
 
